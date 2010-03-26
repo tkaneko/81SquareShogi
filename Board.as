@@ -399,6 +399,8 @@ package  {
             var time_match:Array = token.match(/\$EVENT:(.*)\-(.*)\-(.*?)\+/)
             total_time = parseInt(time_match[2]);
             byoyomi = parseInt(time_match[3]);
+          } else if (token.indexOf("'") == 0) {
+	    ; // ignore comments written in csa file
           } else if (token.match(/([-+][0-9]{4}.{2}$)/)) {
             var move_and_time:Object = new Object();
             move_and_time.move = token
