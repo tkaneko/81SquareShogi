@@ -227,7 +227,7 @@
         if(user_data.match("##[WHO] +OK") != null){
           break;
         }
-        var match:Array = user_data.match(/\#\#\[WHO\] (.*)\+(.+) x1 (.*)/);
+        var match:Array = user_data.match(/\#\#\[WHO\] ([^+]*)(\+.+)? (CSA|x1) (.*)/);
         if(match != null && match[2] != "OK"){
           var name:String = match[1];
           var user:Object = new Object();
@@ -235,16 +235,16 @@
           user.country = "81SU";
           user.rating = 1500;
           user.rank = makeRankFromRating(user.rating);
-          user.status = match[3].split(" ")[0];
+          user.status = match[4].split(" ")[0];
           if(user.status.indexOf("game_waiting") == 0){
-            user.game_name = match[3].split(" ")[1];
+            user.game_name = match[4].split(" ")[1];
 	          user.status2 = "W";
 	          match = user.game_name.match(/^(.*)-([0-9]*)-([0-9]*)/);
 	          var total:int = parseInt(match[2]) / 60 ;
 	          user.rule = total + "-" + match[3];
           } else if(user.status.indexOf("game") == 0){
-            user.game_name = match[3].split(" ")[1];
-            user.status2 = "G(" + (match[3].split(" ")[2] == "+" ? "▲" : "△") + ")";
+            user.game_name = match[4].split(" ")[1];
+            user.status2 = "G(" + (match[4].split(" ")[2] == "+" ? "▲" : "△") + ")";
             match = user.game_name.match(/^(.*)-([0-9]*)-([0-9]*)/);
             total = parseInt(match[2]) / 60 ;
             user.rule = total + "-" + match[3];
