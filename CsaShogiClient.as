@@ -137,7 +137,7 @@ package{
     }
 
 		public function checkTimeout():void{
-			send("%%%TIMEOUT");
+			// send("%%%TIMEOUT");
 		}
 
     public function monitorOn(game_name:String):void{
@@ -157,7 +157,7 @@ package{
     }
 
     public function watchers(game_name:String):void{
-      send("%%%WATCHERS " + game_name);
+      // send("%%%WATCHERS " + game_name);
     }
 
 		private function _handleConnect(e:Event):void{
