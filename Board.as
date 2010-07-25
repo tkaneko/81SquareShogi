@@ -272,8 +272,8 @@ package  {
 
 			var time:int = mv.time;
 
-			_timers[running_timer].suspend();
 			_timers[running_timer].accumulateTime(time);
+			_timers[running_timer].suspend();
 			_timers[1-running_timer].resume();
 
       _position.move(mv);
@@ -392,7 +392,7 @@ package  {
           if(token.indexOf("N+") == 0){
             var name:String = token.match(/N\+(.*)/)[1]
             names[0] = name;
-            _my_turn = name == watch_user.name ? Kyokumen.SENTE : Kyokumen.GOTE;
+            _my_turn = name.toLowerCase() == watch_user.name ? Kyokumen.SENTE : Kyokumen.GOTE;
           } else if (token.indexOf("N-") == 0){
             names[1] = token.match(/N\-(.*)/)[1];
           } else if (token.indexOf("$EVENT:") == 0) {
@@ -427,7 +427,6 @@ package  {
       _info_labels[1].text = "R:1500, (Country)"
       _turn_symbols[0].source = _my_turn == Kyokumen.SENTE ? black : white;
       _turn_symbols[1].source = _my_turn == Kyokumen.SENTE ? white_r : black_r;
-      trace("Byoyomi="+byoyomi.toString());
       _timers[0].reset(total_time,byoyomi);
       _timers[1].reset(total_time,byoyomi);
 
@@ -436,7 +435,7 @@ package  {
       _timers[running_timer].start();
       _timers[1-running_timer].stop();
       if (moves.length > 0) {
-        for each(var move:Object in moves){
+        for each(var move:Object in moves) {
           makeMove(move.move + "," + move.time,false);
         }
       }
@@ -468,7 +467,7 @@ package  {
         } else {
           koma = _position.getKomaAt(Kyokumen.translateHumanCoordinates(new Point(x,y)));
           _selected_square.setStyle('backgroundColor',undefined);
-          if( koma != null && koma.ownerPlayer == _my_turn){
+          if( koma != null && (koma.ownerPlayer == _my_turn || _from.x >= Kyokumen.HAND)){
           	_from = null;
           	_selected_square = null;
           } else {
@@ -511,8 +510,8 @@ package  {
       }
     }
 
-		private function _checkTimeout(e:Event):void{
-			_timeoutCallback();
+		private function _checkTimeout(e:Event):void {
+			if (_in_game) _timeoutCallback();
 		}
 		
 	  public function replayMoves(n:int):void{
@@ -537,11 +536,12 @@ package  {
 	
     public function copyKIFtoClipboard():void{
 		  var KIFDataText:String = "";
-		  KIFDataText += "開始日時:\n";
-		  KIFDataText += "棋戦:the 81-square Universe\n";
+		  var date:Date = new Date;
+		  KIFDataText += "開始日時: " + date.fullYear + "/" + (date.month+1) + "/" + date.date + "\n";
+		  KIFDataText += "場所: 81-Dojo\n";
 		  KIFDataText += "手合割:平手\n";
-		  KIFDataText += "先手:" + _name_labels[0].text + "\n";
-		  KIFDataText += "後手:" + _name_labels[1].text + "\n";
+		  KIFDataText += "先手:" + playerNames[0] + "\n";
+		  KIFDataText += "後手:" + playerNames[1] + "\n";
 		  KIFDataText += "手数----指手---------消費時間--\n";
 		  for (var i:int = 1; i < kifu_list.length ; i++){
 		  	KIFDataText += "   " + String(i) + " ";

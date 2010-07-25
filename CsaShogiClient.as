@@ -21,8 +21,9 @@ package{
     public static var MONITOR:String = 'monitor';
     public static var START_WATCH:String = 'start_watch';
     public static var LIST:String = 'list';
-	public static var GAME_SUMMARY:String = 'game_summary';
-	public static var REJECT:String = 'reject';
+    public static var GAME_SUMMARY:String = 'game_summary';
+    public static var REJECT:String = 'reject';
+    public static var WATCHERS:String = 'watchers';
     
     public static var STATE_CONNECTED:int     = 0;
     public static var STATE_GAME_WAITING:int  = 1;
@@ -34,8 +35,8 @@ package{
 
 		private var _socket:Socket;
 
-		private var _host:String = '127.0.0.1';
-		//private var _host:String = '81square-shogi.homeip.net';
+		//private var _host:String = '127.0.0.1';
+		private var _host:String = '81square-shogi.homeip.net';
 		//private var _host:String = '81squareuniverse.com';
 		private var _port:int = 4081;
 		//private var _port:int = 2195;
@@ -54,10 +55,9 @@ package{
       _player_names = new Array(2);
       _buffer = "";
       _buffers = new Object();
-      for each(var key:String in [WHO,LIST,MONITOR,GAME_END,GAME_SUMMARY]){
+      for each(var key:String in [WHO,LIST,MONITOR,GAME_END,GAME_SUMMARY,WATCHERS]){
         _buffers[key] = "";
       }
-      //Security.loadPolicyFile("xmlSocket://"+_host+":8430");
 		}
 
 		public function connect():void{
@@ -152,6 +152,14 @@ package{
       send("%%LIST");
     }
 
+    public function keepAlive():void{
+      send("\n");
+    }
+
+    public function watchers(game_name:String):void{
+      send("%%%WATCHERS " + game_name);
+    }
+
 		private function _handleConnect(e:Event):void{
 			trace("connected.");
 			dispatchEvent(new Event(CsaShogiClient.CONNECTED));
@@ -168,8 +176,12 @@ package{
 
 		private function _handleSocketData(e:ProgressEvent):void{
 			var response:String = e.target.readUTFBytes(e.target.bytesAvailable);
-      var lines:Array = response.split("\n");
-      trace(response);
+			_buffer = _buffer + response;
+			if (_buffer.match(/^##\[MONITOR2\]/) && !_buffer.match(/\+OK$/)) {
+				return;
+			}
+      var lines:Array = _buffer.split("\n");
+      trace("Response:"+_buffer);
       var match:Array;
       for each(var line:String in lines){
         if(_reading_game_summary_flag){
@@ -202,6 +214,11 @@ package{
           if(line == "##[LIST] +OK"){
 			      _dispatchServerMessageEvent(LIST);
           }
+        } else if(line.match(/^##\[WATCHERS\]/) != null){
+          _buffer_response(WATCHERS,line);
+          if(line.match(/^##\[WATCHERS\] \+OK$/)){
+			      _dispatchServerMessageEvent(WATCHERS);
+          }
         } else {
           switch(_current_state) {
             case STATE_NOT_CONNECTED:
@@ -233,17 +250,17 @@ package{
                 _current_state = STATE_GAME;
 			          dispatchEvent(new ServerMessageEvent(GAME_STARTED,line));
               } else if (line.match(/^REJECT\:/) != null) {
-				  trace("state change to connected");
-				  _current_state = STATE_CONNECTED;
-				  dispatchEvent(new ServerMessageEvent(REJECT,line));
-			  }
+                trace("state change to connected");
+                _current_state = STATE_CONNECTED;
+                dispatchEvent(new ServerMessageEvent(REJECT,line));
+			        }
               break;
             case STATE_START_WAITING:
               break;
             case STATE_GAME:
-              if((match = line.match(/^#(WIN|LOSE|TIMEUP|ILLEGAL_MOVE)/))){
+              if((match = line.match(/^#(WIN|LOSE|DRAW|RESIGN|TIME_UP|ILLEGAL_MOVE|SENNICHITE)/))){
                 _buffer_response(GAME_END,line);
-                if(match[1] == "WIN" || match[1] == "LOSE"){
+                if(match[1] == "WIN" || match[1] == "LOSE" || match[1] == "DRAW"){
                   trace("state change to connected");
                   _current_state = STATE_CONNECTED
 			            _dispatchServerMessageEvent(GAME_END);
@@ -255,6 +272,7 @@ package{
           }
         }
       }
+	  _buffer = "";
     }
 
     private function _dispatchServerMessageEvent(event_name:String):void{
