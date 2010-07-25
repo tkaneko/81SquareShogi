@@ -500,7 +500,7 @@
         var lines:Array = e.message.split("\n");
         for each(var line:String in lines){
           var tokens:Array = line.split("+");
-          if(tokens != null && (tokens[2].toLowerCase() == _watch_user.name || tokens[3].toLowerCase() == _watch_user.name)){
+          if(tokens != null && (tokens[2] == _watch_user.name || tokens[3] == _watch_user.name)){
             var match:Array = line.match(/##\[LIST\] (.*)/);
             if(match != null){
               var game_name:String = match[1];
