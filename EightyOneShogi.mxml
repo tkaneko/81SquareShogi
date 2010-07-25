@@ -293,23 +293,23 @@
         trace("user_data:" + user_data);
         var match:Array = user_data.match(/\#\#\[WHO\] ([^+]*)(\+.+)? (CSA|x1) (.*)/);
         if(match != null){
-          var user:Object = {'name':match[1], 'country':'','status':StringUtil.trim(match[3].split(" ")[0])}
+          var user:Object = {'name':match[1], 'country':'wdoor','status':StringUtil.trim(match[4].split(" ")[0])}
           // var user:Object = {'name':match[1], 'country':'81SU','status':StringUtil.trim(match[2].split(" ")[0])}
           // if(user.status == 'game_waiting' || user.status == 'start_waiting' || user.status == 'agree_waiting' || user.status == 'game'){
           //   user.rating = parseInt(match[2].split(' ')[3]);
           // } else {
           //   user.rating = parseInt(match[2].split(' ')[1]);
           // }
-          user.rank = makeRankFromRating(user.rating);
+          user.rank = "N/A"; // makeRankFromRating(user.rating);
           if(user.status == "game_waiting" || user.status == "game"){
-            user.game_name = match[3].split(" ")[1];
+            user.game_name = match[4].split(" ")[1];
             var game_info:Array = user.game_name.match(/^(.*)-([0-9]*)-([0-9]*)/);
             var total:int = parseInt(game_info[2]) / 60 ;
             user.rule = total + "-" + game_info[3];
             if(user.status == "game_waiting"){
               user.status2 = "W";
             } else {
-              user.status2 = "G(" + (match[3].split(" ")[2] == "+" ? "▲" : "△") + ")";
+              user.status2 = "G(" + (match[4].split(" ")[2] == "+" ? "▲" : "△") + ")";
               if (user.name != game_info[1].toLowerCase()) user.opponent = game_info[1].toLowerCase();  //Show the user's opponent only when he is a challenger
             }
           }
@@ -598,8 +598,8 @@
   </mx:Script>
   <mx:ViewStack id="mainViewStack" creationPolicy="all" width="100%" height="100%">
     <mx:VBox id="loginBox" horizontalAlign="center" verticalAlign="middle" width="100%" height="100%">
-    <mx:Image source="http://www.81squareuniverse.com/test/images/81Dojo.jpg"/>
-      <mx:Label text="(powered by ShogiServer and 81SU)" fontSize="11"/>
+      <mx:Label text="コンピュータ将棋対局場 (人間用)" fontSize="17"/>
+      <mx:Label text="(powered by 81-Dojo project)" fontSize="11"/>
       <mx:Form>
         <mx:FormItem label="loginname">
             <mx:TextInput id="loginname" width="200"/>
@@ -613,9 +613,7 @@
       </mx:Form>
       <mx:Label id="loginMessage"/>
       <mx:Label id="errorMessage" color="#ff6666" />
-      <mx:LinkButton label="Sign Up" fontSize="15" click="navigateToURL(new URLRequest('http://81square-shogi.homeip.net:2195'), 'quote')" />
-      <mx:Label text="Chief Programmer: Kota" fontSize="10"/>
-      <mx:Label text="ver.2010/07/10"/>
+      <mx:Label text="ver.2010/07/10+kaneko2010/07/25"/>
     </mx:VBox>
     
     <mx:VBox>
