@@ -81,7 +81,7 @@
 
     private function _handleKeepAlive(e:Event):void{
       // if (_game_name) _client.watchers(_game_name) else _refresh();
-      if (_game_name) _client.keepAlive() else _refresh();
+      _client.keepAlive();
     }
 
     private function _handleLogin(e:Event):void{
