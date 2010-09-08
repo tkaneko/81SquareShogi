@@ -24,6 +24,7 @@ package{
     public static var GAME_SUMMARY:String = 'game_summary';
     public static var REJECT:String = 'reject';
     public static var WATCHERS:String = 'watchers';
+    public static var INITIAL_MOVES:String = 'initial_moves';
     
     public static var STATE_CONNECTED:int     = 0;
     public static var STATE_GAME_WAITING:int  = 1;
@@ -55,7 +56,7 @@ package{
       _player_names = new Array(2);
       _buffer = "";
       _buffers = new Object();
-      for each(var key:String in [WHO,LIST,MONITOR,GAME_END,GAME_SUMMARY,WATCHERS]){
+      for each(var key:String in [WHO,LIST,MONITOR,GAME_END,GAME_SUMMARY,WATCHERS,INITIAL_MOVES]){
         _buffers[key] = "";
       }
 		}
@@ -193,6 +194,8 @@ package{
           } else if((match = line.match(/^Name\-\:(.*)/))){
             _player_names[1] = match[1];
             _buffer_response(GAME_SUMMARY, match[1]);
+          } else if((match = line.match(/^([+-][0-9]{4}[A-Z]{2}.*)/))){
+            _buffer_response(INITIAL_MOVES, match[1]);
           } else if(line == "END Game_Summary"){
             trace("state change to agree_wating");
             _current_state = STATE_AGREE_WAITING;
@@ -249,6 +252,7 @@ package{
                 trace("state change to game");
                 _current_state = STATE_GAME;
 			          dispatchEvent(new ServerMessageEvent(GAME_STARTED,line));
+		_dispatchServerMessageEvent(INITIAL_MOVES);
               } else if (line.match(/^REJECT\:/) != null) {
                 trace("state change to connected");
                 _current_state = STATE_CONNECTED;

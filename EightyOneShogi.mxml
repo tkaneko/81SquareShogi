@@ -72,6 +72,7 @@
       _client.addEventListener(CsaShogiClient.MONITOR,_handleMonitor);
       _client.addEventListener(CsaShogiClient.LIST, _handleList);
       _client.addEventListener(CsaShogiClient.GAME_SUMMARY, _handleGameSummary);
+      _client.addEventListener(CsaShogiClient.INITIAL_MOVES, _handleInitialMoves);
       _client.addEventListener(CsaShogiClient.REJECT, _handleReject);
       _client.addEventListener(CsaShogiClient.WATCHERS, _handleWatchers);
       loginMessage.text = "Connecting...";
@@ -232,7 +233,12 @@
       kifuDataGrid.dataProvider = board.kifu_list;
       mainViewStack.selectedIndex = 2;
     }
-
+    private function _handleInitialMoves(e:ServerMessageEvent):void{
+      var moves:Array = e.message.split("\n");
+      for each(var move:String in moves) {
+        _handleMove(new ServerMessageEvent(CsaShogiClient.MOVE,move));
+      }
+    }
     private function _handleGameEnd(e:ServerMessageEvent):void {
       var kifuMove:Object = new Object();
       kifuMove.num = board.kifu_list.length;
